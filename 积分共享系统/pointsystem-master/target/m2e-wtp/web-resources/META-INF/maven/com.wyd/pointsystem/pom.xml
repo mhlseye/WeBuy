@@ -1,0 +1,258 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.wyd</groupId>
+  <artifactId>pointsystem</artifactId>
+  <packaging>war</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>pointsystem Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  
+  <properties>
+		<spring.version>4.3.7.RELEASE</spring.version>
+		<hibernate.version>5.2.12.Final</hibernate.version>
+		<jstl.version>1.2</jstl.version>
+		<taglib.version>1.1.2</taglib.version>
+		<json.version>1.9.13</json.version>
+		<jackson.version>2.9.4</jackson.version>
+		<mysql.version>5.1.38</mysql.version>
+		<c3p0.version>0.9.1.2</c3p0.version>
+		<log4j.version>1.2.17</log4j.version>
+		<fileupload.version>1.3.1</fileupload.version>
+		<lombok.version>1.16.10</lombok.version>
+		<jersey.version>2.26</jersey.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<cxf.version>3.1.10</cxf.version>
+  </properties>
+  
+  <dependencies>
+  	    <!-- spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+	    <dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- hibernate配置 -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+
+		<!-- 二级缓存ehcache -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-ehcache</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.ehcache</groupId>
+		    <artifactId>ehcache</artifactId>
+		    <version>3.4.0</version>
+		</dependency>
+		<!-- jsp页面使用的jstl支持 -->
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>${jstl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>${taglib.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- DataBase数据库连接 mysql包 -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.version}</version>
+		</dependency>
+
+		<!-- 数据库连接池 -->
+		<dependency>
+			<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>${c3p0.version}</version>
+		</dependency>
+
+		<!-- json数据 使springMVC可以返回json值 ,视情况添加 -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${json.version}</version>
+		</dependency>
+
+		<!-- Jackson可以轻松的将Java对象转换成json对象和xml文档,同样也可以将json、xml转换成Java对象 -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+		<!-- log4j配置, 视情况添加 -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		
+		<!-- Jersey -->
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-multipart</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-json-jackson</artifactId>
+			<version>${jersey.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jettison</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-grizzly2-http</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.inject</groupId>
+			<artifactId>jersey-hk2</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.ext</groupId>
+			<artifactId>jersey-spring4</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.test-framework.providers</groupId>
+			<artifactId>jersey-test-framework-provider-inmemory</artifactId>
+			<version>${jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>jsp-2.1</artifactId>
+			<version>6.1.14</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- cxf -->
+		<dependency>  
+		    <groupId>org.apache.cxf</groupId>  
+		    <artifactId>cxf-rt-frontend-jaxws</artifactId>  
+		    <version>${cxf.version}</version>                  
+		</dependency>  
+		<dependency>  
+		    <groupId>org.apache.cxf</groupId>  
+		    <artifactId>cxf-rt-transports-http</artifactId>  
+		    <version>${cxf.version}</version>  
+		</dependency>  
+  </dependencies>
+  
+  <build>
+    <finalName>pointsystem</finalName>
+    <plugins> 
+         <!-- Run the application using "mvn jetty:run" -->
+         <plugin>
+             <groupId>org.mortbay.jetty</groupId>
+             <artifactId>maven-jetty-plugin</artifactId>
+         </plugin>
+         
+         <plugin>  
+		     <groupId>org.apache.maven.plugins</groupId>  
+		     <artifactId>maven-compiler-plugin</artifactId>  
+		     <version>3.3</version>  
+		     <configuration>  
+		         <source>1.8</source>  
+		         <target>1.8</target>  
+		         <compilerArguments>  
+		         <endorseddirs>${endorsed.dir}</endorseddirs>  
+		         </compilerArguments>  
+		     </configuration>  
+   		</plugin>  
+    </plugins>
+  </build>
+  
+</project>

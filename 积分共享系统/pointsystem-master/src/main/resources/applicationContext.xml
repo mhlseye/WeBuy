@@ -1,0 +1,159 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+		    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		    xmlns:aop="http://www.springframework.org/schema/aop"
+		    xmlns:context="http://www.springframework.org/schema/context"
+		    xmlns:tx="http://www.springframework.org/schema/tx"
+		    xmlns:jaxws="http://cxf.apache.org/jaxws"  
+		    xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/aop
+			http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/tx
+			http://www.springframework.org/schema/tx/spring-tx.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context.xsd
+			http://cxf.apache.org/jaxws   
+            http://cxf.apache.org/schemas/jaxws.xsd
+		    ">
+	<!-- 引入属性文件 -->
+	<context:property-placeholder location="classpath:config.properties" />
+	
+	<!-- 自动扫描dao和service包(自动注入) -->
+	<context:annotation-config/>
+	<context:component-scan base-package="com.wyd" />
+	
+	<!-- 出现BeanNotOfRequiredTypeException,JDK的动态代理不支持类注入 -->
+	<tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager" />
+	
+	<import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+	
+	<!-- 配置数据源 c3p0 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+
+		<!-- 请求超时时间 -->
+		<property name="checkoutTimeout" value="30000" />
+		<!-- 每60秒检查所有连接池中的空闲连接。默认值: 0，不检查 -->
+		<property name="idleConnectionTestPeriod" value="30" />
+		<!-- 连接数据库连接池最大空闲时间 -->
+		<property name="maxIdleTime" value="30" />
+		<!-- 连接池初始化连接数 -->
+		<property name="initialPoolSize" value="5" />
+		<property name="minPoolSize" value="5" />
+		<property name="maxPoolSize" value="20" />
+		<!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。默认值: 3 -->
+		<property name="acquireIncrement" value="5" />
+	</bean>
+
+	<!-- 配置hibernate的SessionFactory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<!-- 注入数据源 相关信息看源码 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- hibernate配置信息 -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<!-- 二级缓存配置 -->
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<!-- 开启查询的二级缓存 如果不需要就不设置 -->
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<!-- Hibernate4.0以上设置factory -->
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory
+				</prop>
+				<!-- 二级缓存 ehcache的配置文件位置 -->
+				<prop key="hibernate.cache.provider_configuration_file_resource_path">ehcache.xml</prop>
+			</props>
+		</property>
+		<!-- 扫描hibernate注解配置的entity -->
+		<property name="packagesToScan" value="com.wyd.domain" />
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 配置事务增强处理Bean，指定事务管理器 -->
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<!-- 配置详细事务处理语义 -->
+		<tx:attributes>
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+
+			<tx:method name="get*" propagation="SUPPORTS" read-only="true" />
+			<tx:method name="find*" propagation="SUPPORTS" read-only="true" />
+			<tx:method name="select*" propagation="SUPPORTS" read-only="true" />
+			<tx:method name="load*" propagation="SUPPORTS" read-only="true" />
+
+			<!-- 其他采用默认事务方式 -->
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- Spring aop事务管理 -->
+	<aop:config>
+		<!-- 配置切入点 -->
+		<aop:pointcut id="transactionPointcut"
+			expression="execution(* com.wyd.service..*Impl.*(..))" />
+		<!-- 指定在txAdvice切入点应用txAdvice事务增强处理 -->
+		<aop:advisor pointcut-ref="transactionPointcut"
+			advice-ref="transactionAdvice" />
+	</aop:config>
+	
+	<!--  
+	1、访问接口服务：http://localhost:7070/pointsystem/cxf/soap/membershipService?wsdl  
+	2、访问接口中的方法：  
+	http://localhost:7070/pointsystem/cxf/soap/membershipService/findAll
+	或：http://localhost:7070/pointsystem/cxf/soap/userService/getUserName?arg0=aaa  
+	--> 
+	 
+	<!-- jax-ws endpoint定义  -->
+	<jaxws:endpoint id="membership" implementor="com.wyd.service.impl.MembershipServiceImpl" address="/soap/membershipService"/>
+	
+	<jaxws:endpoint id="program" implementor="com.wyd.service.impl.ProgramServiceImpl" address="/soap/programService"/>
+	
+	<jaxws:endpoint id="company" implementor="com.wyd.service.impl.CompanyServiceImpl" address="/soap/companyService"/>
+	
+	<jaxws:endpoint id="paymentMethod" implementor="com.wyd.service.impl.PaymentMethodServiceImpl" address="/soap/paymentMethodService"/>
+	
+	<jaxws:endpoint id="pointsAccount" implementor="com.wyd.service.impl.PointsAccountServiceImpl" address="/soap/pointsAccountService"/>
+	
+	<jaxws:endpoint id="pointsAccountType" implementor="com.wyd.service.impl.PointsAccountTypeServiceImpl" address="/soap/pointsAccountTypeService"/>
+	
+	<jaxws:endpoint id="pointsDepositTransDetail" implementor="com.wyd.service.impl.PointsDepositTransDetailServiceImpl" address="/soap/pointsDepositTransDetailService"/>
+	
+	<jaxws:endpoint id="pointsSpendTransDetail" implementor="com.wyd.service.impl.PointsSpendTransDetailServiceImpl" address="/soap/pointsSpendTransDetailService"/>
+	
+	<jaxws:endpoint id="pointsTransHeader" implementor="com.wyd.service.impl.PointsTransHeaderServiceImpl" address="/soap/pointsTransHeaderService"/>
+	
+	<jaxws:endpoint id="pointsSpendTransDetail" implementor="com.wyd.service.impl.PointsSpendTransDetailServiceImpl" address="/soap/pointsSpendTransDetailService"/>
+	
+	<jaxws:endpoint id="productMembership" implementor="com.wyd.service.impl.ProductMembershipServiceImpl" address="/soap/productMembershipService"/>
+	
+	<jaxws:endpoint id="product" implementor="com.wyd.service.impl.ProductServiceImpl" address="/soap/productService"/>
+	
+	<jaxws:endpoint id="status" implementor="com.wyd.service.impl.StatusServiceImpl" address="/soap/statusService"/>
+	
+	<jaxws:endpoint id="transactionDetail" implementor="com.wyd.service.impl.TransactionDetailServiceImpl" address="/soap/transactionDetailService"/>
+	
+	<jaxws:endpoint id="transDetailPayment" implementor="com.wyd.service.impl.TransDetailPaymentServiceImpl" address="/soap/transDetailPaymentService"/>
+	
+	<jaxws:endpoint id="transPayment" implementor="com.wyd.service.impl.TransPaymentServiceImpl" address="/soap/transPaymentService"/>
+	
+	<jaxws:endpoint id="transType" implementor="com.wyd.service.impl.TransTypeServiceImpl" address="/soap/transTypeService"/>
+	
+	<jaxws:endpoint id="store" implementor="com.wyd.service.impl.StoreServiceImpl" address="/soap/storeService"/>
+
+</beans>
